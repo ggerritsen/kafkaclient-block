@@ -12,5 +12,4 @@
 *.out
 
 main
-client
-postgresqlblock
+consumer
