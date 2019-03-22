@@ -9,7 +9,7 @@ import (
 
 // Record is the object stored in the kafka topic
 type Record struct {
-	name string
+	Name string `json:"name"`
 }
 
 type consumer struct {
@@ -17,20 +17,17 @@ type consumer struct {
 }
 
 // NewConsumer creates a consumer that consumes from a kafka topic
-func NewConsumer(brokers []string, topic string) (*consumer, error) {
+func NewConsumer(brokers []string, topic string) *consumer {
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   brokers,
-		Topic:     topic,
-		Partition: 0,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
+		Brokers: brokers,
+		Topic:   topic,
 	})
 	r.SetOffset(0)
 
-	return &consumer{r}, nil
+	return &consumer{r}
 }
 
-// Close closes the underlying kafka reader
+// Close closes the underlying kafka connection
 func (c *consumer) Close() {
 	c.r.Close()
 }
@@ -44,6 +41,4 @@ func (c *consumer) Consume() error {
 		}
 		fmt.Printf("Received message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 	}
-
-	// return nil
 }

@@ -9,15 +9,22 @@ import (
 func main() {
 	fmt.Printf("Start of demonstration.\n")
 
-	// TODO make new producer
+	brokers := []string{"localhost:9092"}
+	topic := "test"
 
-	c, err := NewConsumer([]string{"localhost:9092"}, "test")
-	if err != nil {
-		log.Fatal(err)
-	}
+	p := NewProducer(brokers, topic)
+	defer p.Close()
+
+	c := NewConsumer(brokers, topic)
 	defer c.Close()
 
 	go c.Consume()
+
+	for i := 0; i < 10; i++ {
+		if err := p.Produce(&Record{Name: fmt.Sprintf("record-%d", i)}); err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	time.Sleep(15 * time.Second)
 
